@@ -1,0 +1,75 @@
+import { render, screen } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
+import { describe, it, expect, vi } from 'vitest'
+import App from './App'
+
+describe('React App Tests', () => {
+
+  // Test 1: Rendering
+  it('renders the heading', () => {
+    render(<App />)
+    expect(
+      screen.getByText('Testing React App')
+    ).toBeInTheDocument()
+  })
+
+  // Test 2: Initial count
+  it('displays initial count as zero', () => {
+    render(<App />)
+    expect(screen.getByText('Count: 0'))
+      .toBeInTheDocument()
+  })
+
+  // Test 3: Button click
+  it('increases count when button is clicked', async () => {
+    const user = userEvent.setup()
+    render(<App />)
+
+    await user.click(screen.getByText('Increase'))
+
+    expect(screen.getByText('Count: 1'))
+      .toBeInTheDocument()
+  })
+
+  // Test 4: Input rendering
+  it('renders the name input', () => {
+    render(<App />)
+
+    expect(
+      screen.getByPlaceholderText('Enter your name')
+    ).toBeInTheDocument()
+  })
+
+  // Test 5: Form validation error
+  it('shows an error when name is empty', async () => {
+    const user = userEvent.setup()
+    render(<App />)
+
+    await user.click(screen.getByText('Submit'))
+
+    expect(screen.getByRole('alert'))
+      .toHaveTextContent('Name is required')
+  })
+
+  // Test 6: Successful form submission
+  it('submits the form with a valid name', async () => {
+    const user = userEvent.setup()
+    const alertMock = vi.spyOn(window, 'alert')
+      .mockImplementation(() => {})
+
+    render(<App />)
+
+    await user.type(
+      screen.getByPlaceholderText('Enter your name'),
+      'Sharmila'
+    )
+
+    await user.click(screen.getByText('Submit'))
+
+    expect(alertMock).toHaveBeenCalledWith(
+      'Form submitted successfully'
+    )
+
+    alertMock.mockRestore()
+  })
+})
